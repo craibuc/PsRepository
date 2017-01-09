@@ -6,7 +6,7 @@
 # add reference to module to current PowerShell session
 PS> Import-<Module PsRepository
 
-# Query the repository
+# query the repository
 PS> Get-InfoObject "SELECT * FROM ci_infoobjects WHERE si_id=23"
 
 # supply credentials
@@ -17,6 +17,7 @@ authentication: secWinAd
 account: MY_ACCOUNT
 password: ********
 
+# results are returned to the pipeline (for additional processing as desired)
 Interface                : Root Folder
 COM_CLASS                : System.__ComObject
 COM_INTERFACE            : System.__ComObject
