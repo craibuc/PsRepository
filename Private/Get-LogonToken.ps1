@@ -73,7 +73,8 @@ function Get-LogonToken {
 
     # persist in session variable
     $global:token = $token
-    
+    $global:session = $session
+
     # return token
     $token
     
