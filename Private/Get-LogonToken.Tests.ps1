@@ -7,7 +7,7 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 Describe "Get-LogonToken" {
 
     $server = Read-Host 'Server'
-    $authentication = 'secWinAD'
+    $authentication = Read-Host 'Authentication [secEnterprise|secWinAD]'
     $account = Read-Host 'Account'
     $securePassword = Read-Host 'Password' -AsSecureString
 
