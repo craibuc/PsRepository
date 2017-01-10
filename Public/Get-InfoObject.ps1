@@ -64,25 +64,35 @@ function Get-InfoObject {
 
     [CmdletBinding()]
     param(
-        [string]$Query
+        [Parameter(Position=0, Mandatory=$true, ValueFromPipeline=$true)]
+        [string[]]$Query
     )
 
-    Write-Debug "$($MyInvocation.MyCommand.Name)::BEGIN"
+    Begin { 
+        Write-Debug "$($MyInvocation.MyCommand.Name)::BEGIN"
 
-    # PS> $DebugPreference = $Continue
-    Write-Debug $Query
+        if ( !$global:session )
+        {
+            Get-LogonToken | Out-Null # don't add the token to the pipeline, as this will confuse 'down stream' processing
+        }
 
-    if ( !$global:token )
-    {
-        Get-LogonToken | Out-Null # don't add the token to the pipeline, as this will confuse 'down stream' processing
+        # $sessionMgr = New-Object CrystalDecisions.Enterprise.SessionMgr
+        # $session = $sessionMgr.LogonWithToken($global:token)
+
+        $infoStore = [CrystalDecisions.Enterprise.InfoStore]$global:session.GetService("InfoStore")
+    
+    }
+    
+    Process {
+        foreach ($Q In $Query) {
+
+            # PS> $DebugPreference = $Continue
+            Write-Debug $Q
+
+            $infoStore.Query($Q)
+        }
     }
 
-    $sessionMgr = New-Object CrystalDecisions.Enterprise.SessionMgr
-    $session = $sessionMgr.LogonWithToken($global:token)
-
-    $infoStore = [CrystalDecisions.Enterprise.InfoStore]$session.GetService("InfoStore")
-    $infoStore.Query($query)
-
-    Write-Debug "$($MyInvocation.MyCommand.Name)::END"
+    End { Write-Debug "$($MyInvocation.MyCommand.Name)::END" }
 
 }
