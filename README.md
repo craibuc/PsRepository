@@ -75,6 +75,69 @@ Properties               : {, 23, Root Folder, 0...}
 ...    
 ~~~
 
+### Use RAS to extract the name of the database tables and compare them to a pattern
+
+~~~
+import-module PsRepository -Force
+
+$patterns = @()
+$patterns += [PsCustomObject]@{Title='Materialized View (M_VW_*)';Pattern='\bM_VW_'}
+$patterns += [PsCustomObject]@{Title='Materialized View (MW_*)';Pattern='\bMV_'}
+$patterns += [PsCustomObject]@{Title='Custom Table (X_*)';Pattern='\bX_'}
+$patterns += [PsCustomObject]@{Title='Custom View (V_*)';Pattern='\bV_'}
+$patterns += [PsCustomObject]@{Title='Custom View (VW_*)';Pattern='\bVW_'}
+$patterns += [PsCustomObject]@{Title='Procedure (ESP_*)';Pattern='\bESP_'}
+$patterns += [PsCustomObject]@{Title='Procedure (UP_*)';Pattern='\bUP_'}
+
+Write-Host "Patterns: $patterns"
+
+Resolve-UriQuery "path://InfoObjects/Root Folder/Foobar/**[si_kind='CrystalReport' AND si_instance=0]" | Get-InfoObject | % {
+
+    $io = $_
+    Write-Host "Title: $($_.Title)"
+ 
+    $_ | Open-ReportDocument | % {
+
+        $report = $_
+
+        Write-Host "Processing tables in main report"
+
+        $_.Database.Tables | % {
+
+            $text = if ( $_.ClassName -Eq 'CrystalReports.CommandTable' ) {  $_.CommandText } else { $_.Name }
+            $matches = $patterns | % { if ($text -match $_.Pattern ) { $_.Title } }
+
+            [PsCustomObject]@{Title=$io.Title;Subreport=$null;ClassName=$_.ClassName;Name=$_.Name;Matches=$( $matches -Join ';' )}
+
+
+        } # /Tables
+  
+        if ( $_.Subreports ) {
+
+            $_.Subreports | % { 
+
+                $subreport = $_
+
+                Write-Host ("Processing tables in subreport {0}" -f $subreport.Name)
+
+                $_.Database.Tables | % {
+
+                    $text = if ( $_.ClassName -Eq 'CrystalReports.CommandTable' ) {  $_.CommandText } else { $_.Name }
+                    $matches = $patterns | % { if ($text -match $_.Pattern ) { $_.Title } }
+
+                    [PsCustomObject]@{Title=$io.Title;Subreport=$null;ClassName=$_.ClassName;Name=$_.Name;Matches=$( $matches -Join  ';' )}
+
+                } # /Tables
+
+            } # /Subreports
+
+        }
+
+    } # /reportdocument 
+
+} | ConvertTo-Csv -NoTypeInfo | Out-File ~\Desktop\tables.txt
+~~~
+
 ### Other
 
  - [bv_hierarchy.ps1](Examples/bv_hierarchy.ps1) demonstrates how to connect BusinessViews -> Lists of Value -> Prompt Groups -> Crystal Reports
