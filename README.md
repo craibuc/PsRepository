@@ -77,7 +77,7 @@ Properties               : {, 23, Root Folder, 0...}
 
 ### Use RAS to extract the name of the database tables and compare them to a pattern
 
-~~~
+~~~powershell
 import-module PsRepository -Force
 
 $patterns = @()
