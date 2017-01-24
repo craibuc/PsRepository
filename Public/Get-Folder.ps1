@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Extract BusinessViews from repository
+    Get a Folder (InfoObject) given its Id
 
 .PARAMETER FolderID
     Array of folder IDs to be located
@@ -40,7 +40,7 @@ function Get-Folder
     }
 
     END {
-    
+
         # folders can appear in any 'TABLE'
         $query = "SELECT * FROM $( $Table -Join ',' ) WHERE si_id IN ( $( $IDs -Join ',' ) )"
         Write-Verbose $query
@@ -49,7 +49,7 @@ function Get-Folder
 
             # hashtable
             $IO = @{}
-    
+
             foreach ( $property In $properties ) {
                 $IO.Add( $property, $_.Properties[$property].Value )
             }
