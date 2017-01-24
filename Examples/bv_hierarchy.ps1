@@ -187,8 +187,8 @@ function Get-DynamicParameters
 
 }
 
-Write-Host "Retrieving dynamic parameters..."
-$io_rpt = Get-DynamicParameters # -SI_CUID 'ASxtcZZPx_NOnaR2RdZEDbw' 
+Write-Host "Retrieving reports and their dynamic parameters..."
+$io_rpt = Get-DynamicParameters -Verbose # -SI_CUID 'ASxtcZZPx_NOnaR2RdZEDbw' 
 # $io_rpt | ConvertTo-Csv -NoTypeInformation | Out-File ~\Desktop\rpt.txt
 # $io_rpt | format-list
 
